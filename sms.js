@@ -3,8 +3,8 @@
 let request = require('request');
 let api_url = "https://6b0qxqwymf.execute-api.us-east-1.amazonaws.com/beta/send"
 
-/**
- * @param {string} _text Text to be sent by sms to subscribers of this api.
+/**Sends request to SMS api on amazon. This api texts ll subscribers.
+ * @param {string} _text Text to be sent.
  */
 exports.send = function (_text) {
 
@@ -18,6 +18,6 @@ exports.send = function (_text) {
         if (error) {
             throw error
         }
-        return 'SMS message sent!';
+        console.log('%s sent!', _text);
     });
 }

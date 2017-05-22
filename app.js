@@ -1,30 +1,53 @@
 'use strict';
 
-var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.slock.it"));
+let Web3 = require('web3');
+let web3 = new Web3(new Web3.providers.HttpProvider("https://rpc.slock.it"));
 
-var contract = require('./contract')
-var charging_poles = web3.eth.contract(contract.abi).at(contract.address);
+let contract = require('./contract')
+let chargingPoles = web3.eth.contract(contract.abi).at(contract.address);
 
-var send_logs = function (_error, _logs) {
-    return new Promise(function (resolve, reject) {
+let _ = require('lodash');
+let sms = require('./sms');
 
-        if (_error) {
-            reject(_error);
+
+let compiled_text = function (obj) {
+    let compile = _.template('<% _.forEach(args, function(v, k) { %><%- k %>: <%- v.toString() %> - <% }); %>');
+    return compile({ 'args': obj });
+}
+
+// Watches for new Returned operations and notify users
+chargingPoles.LogReturned().watch(function watch_returned(error, log) {
+    sms.send(compiled_text(
+        {
+            'Event': 'Returned',
+            'Amount': log.args.chargeAmount,
+            'Time elapsed': log.args.elapsedSeconds
         }
+    ));
+});
 
-        let sms = require('./sms')
-        try {
-            let res = sms.send(JSON.stringify(_logs));
-            resolve(res);
-        } catch (_err) {
-            reject(_err);
+// Watches for new Renting operations and notify users
+chargingPoles.LogRented().watch(function watch_rented(error, log) {
+    sms.send(compiled_text(
+        {
+            'Event': 'Rented',
+            'Max car W/h': log.args.wattPower,
+            'Hours rented': log.args.hoursToRent
         }
+    ));
+});
+
+// Test
+chargingPoles.allEvents({ fromBlock: 3721056, toBlock: 'latest' }).get(function test_sms(err, logs) {
+
+    let log_rented = _.filter(logs, { event: 'LogRented' });
+    _.forEach(log_rented, function (log) {
+        sms.send(compiled_text(
+            {
+                'Max car W/h': log.args.wattPower,
+                'Hours rented': log.args.hoursToRent
+            }
+        ));
     });
-};
 
-var action = charging_poles.LogReturned({ fromBlock: 3705027, toBlock: 'latest' });
-
-var test = action.get();
-
-charging_poles.LogReturned().watch(send_logs);
+});

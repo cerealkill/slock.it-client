@@ -5,6 +5,7 @@ exports.name = 'charging_poles'
 exports.abi = [
     { "type": "function", "name": "poleOwner", "constant": true, "inputs": [{ "name": "_poleID", "type": "bytes32" }], "outputs": [{ "name": "", "type": "address" }], "payable": false },
     { "type": "function", "name": "getPricePerKW", "constant": true, "inputs": [{ "name": "_poleID", "type": "bytes32" }, { "name": "_user", "type": "address" }], "outputs": [{ "name": "price", "type": "uint256" }], "payable": false },
+    { "type": "function", "name": "getPricePerHour", "constant": true, "inputs": [{ "name": "_poleID", "type": "bytes32" }, { "name": "_user", "type": "address" }], "outputs": [{ "name": "price", "type": "uint256" }], "payable": false },
 
     { "type": "event", "name": "LogClosingTimeUpdated", "anonymous": false, "inputs": [{ "indexed": true, "name": "poleID", "type": "bytes32" }, { "indexed": false, "name": "_blocked", "type": "uint256" }] },
     { "type": "event", "name": "LogOwnerUpdated", "anonymous": false, "inputs": [{ "indexed": true, "name": "poleID", "type": "bytes32" }, { "indexed": false, "name": "newOwner", "type": "address" }] },
