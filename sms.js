@@ -25,7 +25,7 @@ let send = function (__text) {
 /**Sends request to SMS api on amazon. This api texts ll subscribers.
  * @param {Object} __obj Event object to be sent.
  */
-export.send_text = function (__obj) {
+exports.send_text = function (__obj) {
     let compile = _.template('<% _.forEach(args, function(v, k) { %><%- k %>: <%- v.toString() %> - <% }); %>');
     let text = compile({ 'args': __obj });
     send(text);
